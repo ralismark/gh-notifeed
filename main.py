@@ -18,31 +18,31 @@ def api_rss(username: str, token: str):
     Get the rss feed for a user/token combo
     """
     auth = HTTPBasicAuth(username, token)
-    endpoint = 'https://api.github.com/notifications?all=true'
+    endpoint = "https://api.github.com/notifications?all=true"
 
-    r = requests.get(endpoint, auth=auth)
-    if r.status_code != 200:
+    req = requests.get(endpoint, auth=auth)
+    if req.status_code != 200:
         # Report error back to client
-        return r.text, r.status_code
+        return req.text, req.status_code
 
-    fg = FeedGenerator()
-    fg.id("https://github.com/notifications")
-    fg.title("Github Notifications")
-    fg.language("en")
+    feed = FeedGenerator()
+    feed.id("https://github.com/notifications")
+    feed.title("Github Notifications")
+    feed.language("en")
 
-    for entry in r.json():
+    for entry in req.json():
         url = entry["subject"]["url"]
         content = requests.get(url)
         if content.status_code == 200:
             url = content.json()["html_url"]
 
-        fe = fg.add_entry(order="append")
-        fe.id(entry['url'])
-        fe.title(f"[{entry['subject']['type']}] {entry['subject']['title']}")
-        fe.link(href=url)
-        fe.updated(entry["updated_at"])
+        fentry = feed.add_entry(order="append")
+        fentry.id(entry["url"])
+        fentry.title(f"[{entry['subject']['type']}] {entry['subject']['title']}")
+        fentry.link(href=url)
+        fentry.updated(entry["updated_at"])
 
-    return Response(fg.atom_str(), mimetype="application/xml")
+    return Response(feed.atom_str(), mimetype="application/xml")
 
 if __name__ == "__main__":
     app.run()
