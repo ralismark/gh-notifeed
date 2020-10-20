@@ -40,4 +40,4 @@ def api_rss(username: str, token: str):
     return Response(fg.atom_str(), mimetype="application/xml")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
