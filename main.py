@@ -26,15 +26,20 @@ def api_rss(username: str, token: str):
         return r.text, r.status_code
 
     fg = FeedGenerator()
-    fg.id(endpoint)
+    fg.id("https://github.com/notifications")
     fg.title("Github Notifications")
     fg.language("en")
 
     for entry in r.json():
+        url = entry["subject"]["url"]
+        content = requests.get(url)
+        if content.status_code == 200:
+            url = content.json()["html_url"]
+
         fe = fg.add_entry(order="append")
         fe.id(entry['url'])
         fe.title(f"[{entry['subject']['type']}] {entry['subject']['title']}")
-        fe.link(href=entry["subject"]["url"])
+        fe.link(href=url)
         fe.updated(entry["updated_at"])
 
     return Response(fg.atom_str(), mimetype="application/xml")
