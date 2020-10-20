@@ -8,7 +8,7 @@ from feedgen.feed import FeedGenerator
 from requests.auth import HTTPBasicAuth
 import requests
 
-from flask import Flask, Response
+from flask import Flask, Response, send_file
 
 app = Flask(__name__)
 
@@ -43,6 +43,13 @@ def api_rss(username: str, token: str):
         fentry.updated(entry["updated_at"])
 
     return Response(feed.atom_str(), mimetype="application/xml")
+
+@app.route("/")
+def api_root():
+    """
+    Return the about page
+    """
+    return send_file("index.html")
 
 if __name__ == "__main__":
     app.run()
